@@ -12,11 +12,9 @@ defmodule PlateSlateWeb.Schema.Query.MenuItemsTest do
     }
   }
   """
-
   test "menuItems field returns menu items" do
-    conn = build_conn()
-    conn = get conn, "/api", query: @query
-    assert json_response(conn, 200) == %{
+    response = get build_conn(), "/api", query: @query
+    assert json_response(response, 200) == %{
       "data" => %{
         "menuItems" => [
           %{"name" => "Rueben"},
@@ -38,4 +36,39 @@ defmodule PlateSlateWeb.Schema.Query.MenuItemsTest do
     }
   end
 
+  @query """
+  query ($term: String) {
+    menuItems(matching: $term) {
+      name
+    }
+  }
+  """
+  @variables %{"term" => "rue"}
+  test "menuItems field returns menu items filtered by name" do
+    response = get build_conn(), "/api", query: @query, variables: @variables
+    assert json_response(response, 200) == %{
+      "data" => %{
+        "menuItems" => [
+          %{"name" => "Rueben"},
+        ]
+      }
+    }
+  end
+
+  @query """
+  query ($term: String) {
+    menuItems(matching: $term) {
+      name
+    }
+  }
+  """
+  @variables %{"term" => 123}
+  test "menuItems field returns errors when using a bad value" do
+    response = get build_conn(), "/api", query: @query, variables: @variables
+    assert %{"errors" => [
+      %{"message" => message}
+    ]} = json_response(response, 400)
+
+    assert message =~ "Argument \"matching\" has invalid value 123."
+  end
 end
