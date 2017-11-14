@@ -37,52 +37,47 @@ defmodule PlateSlateWeb.Schema.Query.MenuItemsTest do
   end
 
   @query """
-  query ($term: String) {
-    menuItems(matching: $term) {
+  query ($order: SortOrder!) {
+    menuItems(order: $order) {
       name
     }
   }
   """
-  @variables %{"term" => "rue"}
-  test "menuItems field returns menu items filtered by name" do
-    response = get build_conn(), "/api", query: @query, variables: @variables
-    assert json_response(response, 200) == %{
-      "data" => %{
-        "menuItems" => [
-          %{"name" => "Rueben"},
-        ]
-      }
-    }
-  end
-
-  @query """
-  {
-    menuItems(order: DESC) {
-      name
-    }
-  }
-  """
+  @variables %{"order" => "DESC"}
   test "menuItems field returns manuItems descending when asked using literals" do
-    response = get build_conn(), "/api", query: @query
+    response = get build_conn(), "/api", query: @query, variables: @variables
     assert %{
       "data" => %{"menuItems" => [%{"name" => "Water"} | _]}
     } = json_response(response, 200)
   end
 
+
   @query """
-  query ($term: String) {
-    menuItems(matching: $term) {
+  {
+    menuItems(filter: {category: "Sandwiches", tag: "Vegetarian"}) {
       name
     }
   }
   """
-  @variables %{"term" => 123}
-  test "menuItems field returns errors when using a bad value" do
-    response = get build_conn(), "/api", query: @query, variables: @variables
-    assert %{"errors" => [
-      %{"message" => message}
-    ]} = json_response(response, 400)
+  test "menuItems field return menuItems, filtering with a literal" do
+    response = get build_conn(), "/api", query: @query
+    assert %{
+      "data" => %{"menuItems" => [%{"name" => "Vada Pav"}]}
+    } == json_response(response, 200)
+  end
 
-    assert message =~ "Argument \"matching\" has invalid value"
+  @query """
+  query ($filter: MenuItemFilter!) {
+    menuItems(filter: $filter) {
+      name
+    }
+  }
+  """
+  @variables %{filter: %{"tag" => "Vegetarian", "category" => "Sandwiches"}}
+  test "menuItems field returns menuItems, filtering with a variable" do
+    response = get build_conn(), "/api", query: @query, variables: @variables
+    assert %{
+      "data" => %{"menuItems" => [%{"name" => "Vada Pav"}]}
+    } == json_response(response, 200)
   end
 end
