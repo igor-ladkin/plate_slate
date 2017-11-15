@@ -7,7 +7,7 @@ defmodule PlateSlateWeb.Schema.Query.MenuItemsTest do
 
   @query """
   {
-    menuItems {
+    menuItems(filter: {}) {
       name
     }
   }
@@ -38,7 +38,7 @@ defmodule PlateSlateWeb.Schema.Query.MenuItemsTest do
 
   @query """
   query ($order: SortOrder!) {
-    menuItems(order: $order) {
+    menuItems(order: $order, filter: {}) {
       name
     }
   }
@@ -78,6 +78,32 @@ defmodule PlateSlateWeb.Schema.Query.MenuItemsTest do
     response = get build_conn(), "/api", query: @query, variables: @variables
     assert %{
       "data" => %{"menuItems" => [%{"name" => "Vada Pav"}]}
+    } == json_response(response, 200)
+  end
+
+  @query """
+  query ($filter: MenuItemFilter!) {
+    menuItems(filter: $filter) {
+      name
+      addedOn
+    }
+  }
+  """
+  @variables %{filter: %{"addedBefore" => "2017-01-20", "category" => "Sides"}}
+  test "menuItems filtered by date custom scalar" do
+    sides = PlateSlate.Repo.get_by!(PlateSlate.Menu.Category, name: "Sides")
+    %PlateSlate.Menu.Item{
+      name: "Garlic Fries",
+      added_on: ~D[2017-01-01],
+      price: 2.50,
+      category: sides
+    } |> PlateSlate.Repo.insert!()
+
+    response = get build_conn(), "/api", query: @query, variables: @variables
+    assert %{
+      "data" => %{
+        "menuItems" => [%{"name" => "Garlic Fries", "addedOn" => "2017-01-01"}]
+      }
     } == json_response(response, 200)
   end
 end
