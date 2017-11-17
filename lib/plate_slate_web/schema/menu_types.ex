@@ -20,6 +20,11 @@ defmodule PlateSlateWeb.Schema.MenuTypes do
     end
   end
 
+  object :menu_item_result do
+    field :menu_item, :menu_item
+    field :errors, list_of(:input_error)
+  end
+
   interface :search_result do
     field :name, :string
     resolve_type fn
@@ -28,6 +33,12 @@ defmodule PlateSlateWeb.Schema.MenuTypes do
       %PlateSlate.Menu.Category{}, _ ->
         :category
     end
+  end
+
+  @desc "An error encountered trying to presist input"
+  object :input_error do
+    field :key, non_null(:string)
+    field :message, non_null(:string)
   end
 
   # INPUT OBJECTS
