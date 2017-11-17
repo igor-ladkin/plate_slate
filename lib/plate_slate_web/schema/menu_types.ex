@@ -7,6 +7,7 @@ defmodule PlateSlateWeb.Schema.MenuTypes do
     field :id, :id
     field :name, :string
     field :description, :string
+    field :price, :decimal
     field :added_on, :date
   end
 
@@ -53,5 +54,12 @@ defmodule PlateSlateWeb.Schema.MenuTypes do
 
     @desc "Added to the menu after this date"
     field :added_after, :date
+  end
+
+  input_object :menu_item_input do
+    field :name, non_null(:string)
+    field :description, :string
+    field :price, non_null(:decimal)
+    field :category_id, non_null(:id)
   end
 end

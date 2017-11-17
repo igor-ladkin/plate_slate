@@ -1,11 +1,3 @@
-#---
-# Excerpted from "Craft GraphQL APIs in Elixir with Absinthe",
-# published by The Pragmatic Bookshelf.
-# Copyrights apply to this code. It may not be used to create training material,
-# courses, books, articles, and the like. Contact us if you are in doubt.
-# We make no guarantees that this code is fit for any purpose.
-# Visit http://www.pragmaticprogrammer.com/titles/wwgraphql for more book information.
-#---
 defmodule PlateSlateWeb.Schema do
   use Absinthe.Schema
   alias PlateSlateWeb.Resolvers
@@ -23,6 +15,13 @@ defmodule PlateSlateWeb.Schema do
     field :search, list_of(:search_result) do
       arg :matching, non_null(:string)
       resolve &Resolvers.Menu.search/3
+    end
+  end
+
+  mutation do
+    field :create_menu_item, :menu_item do
+      arg :input, non_null(:menu_item_input)
+      resolve &Resolvers.Menu.create_item/3
     end
   end
 
@@ -48,5 +47,16 @@ defmodule PlateSlateWeb.Schema do
     serialize fn date ->
       Date.to_iso8601(date)
     end
+  end
+
+  scalar :decimal do
+    parse fn
+      %{value: value}, _ ->
+        Decimal.parse(value)
+      _, _ ->
+        :error
+    end
+
+    serialize &to_string/1
   end
 end
