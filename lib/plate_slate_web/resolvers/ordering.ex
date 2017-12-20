@@ -16,9 +16,6 @@ defmodule PlateSlateWeb.Resolvers.Ordering do
 
     with {:ok, order} <- Ordering.update_order(order, %{state: "ready"}) do
       {:ok, %{order: order}}
-    else
-      {:error, changeset} ->
-        {:ok, %{errors: transform_errors(changeset)}}
     end
   end
 
@@ -27,9 +24,6 @@ defmodule PlateSlateWeb.Resolvers.Ordering do
 
     with {:ok, order} <- Ordering.update_order(order, %{state: "complete"}) do
       {:ok, %{order: order}}
-    else
-      {:error, changeset} ->
-        {:ok, %{errors: transform_errors(changeset)}}
     end
   end
 
