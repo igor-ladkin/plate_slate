@@ -52,6 +52,7 @@ defmodule PlateSlate.Mixfile do
       {:absinthe_plug, "~> 1.4.0-beta or ~> 1.4.0-rc or ~> 1.4.0", override: true},
       {:absinthe_phoenix, "~> 1.4.0-beta or ~> 1.4.0-rc or ~> 1.4.0", override: true},
       {:absinthe_relay, "~> 1.4.0-beta or ~> 1.4.0-rc or ~> 1.4.0 or ~> 1.3.0", override: true},
+      {:comeonin_ecto_password, "~> 2.1"},
     ]
   end
 

@@ -5,6 +5,7 @@ defmodule PlateSlateWeb.Schema do
 
   import_types __MODULE__.MenuTypes
   import_types __MODULE__.OrderingTypes
+  import_types __MODULE__.AccountsTypes
 
   def middleware(middleware, field, %{identifier: :allergy_info} = object) do
     new_middleware = {Absinthe.Middleware.MapGet, to_string(field.identifier)}
@@ -34,6 +35,12 @@ defmodule PlateSlateWeb.Schema do
   end
 
   mutation do
+    field :login_employee, :employee_session do
+      arg :email, non_null(:string)
+      arg :password, non_null(:string)
+      resolve &Resolvers.Accounts.login_employee/3
+    end
+
     field :create_menu_item, :menu_item_result do
       arg :input, non_null(:menu_item_input)
       resolve &Resolvers.Menu.create_item/3
