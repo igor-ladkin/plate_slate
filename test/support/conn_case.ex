@@ -38,7 +38,7 @@ defmodule PlateSlateWeb.ConnCase do
     # hack so that xref errors don't happen on branches without this module
     token = apply(PlateSlateWeb.Authentication, :sign, [%{role: user.role, id: user.id}])
     conn
-    |> Plug.Conn.put_req_header("Authorization", "Bearer #{token}")
+    |> Plug.Conn.put_req_header("authorization", "Bearer #{token}")
   end
 
   setup tags do

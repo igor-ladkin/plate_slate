@@ -3,6 +3,7 @@ defmodule PlateSlateWeb.Schema.Mutation.CreateMenuItemTest do
   alias PlateSlate.{Repo, Menu}
 
   import Ecto.Query
+  import PlateSlateWeb.ConnCase, only: [auth_user: 2]
 
   setup do
     Code.load_file("priv/repo/seeds.exs")
@@ -35,8 +36,10 @@ defmodule PlateSlateWeb.Schema.Mutation.CreateMenuItemTest do
       "price" => "5.75",
       "categoryId" => category_id
     }
+    user = Factory.create_user("employee")
+    conn = build_conn() |> auth_user(user)
 
-    response = post build_conn(), "/api", query: @query, variables: %{"menuItem" => menu_item}
+    response = post conn, "/api", query: @query, variables: %{"menuItem" => menu_item}
     assert json_response(response, 200) == %{
       "data" => %{
         "createMenuItem" => %{
@@ -58,8 +61,10 @@ defmodule PlateSlateWeb.Schema.Mutation.CreateMenuItemTest do
       "price" => "5.75",
       "categoryId" => category_id
     }
+    user = Factory.create_user("employee")
+    conn = build_conn() |> auth_user(user)
 
-    response = post build_conn(), "/api", query: @query, variables: %{"menuItem" => menu_item}
+    response = post conn, "/api", query: @query, variables: %{"menuItem" => menu_item}
     assert json_response(response, 200) == %{
       "data" => %{
         "createMenuItem" => %{
@@ -72,6 +77,27 @@ defmodule PlateSlateWeb.Schema.Mutation.CreateMenuItemTest do
           ]
         }
       }
+    }
+  end
+
+  test "must be authorized as an employee to do menu item creataion", %{category_id: category_id} do
+    menu_item = %{
+      "name" => "Rueben",
+      "description" => "Roast beef, caramelized onions, horseradish, ...",
+      "price" => "5.75",
+      "categoryId" => category_id
+    }
+    user = Factory.create_user("customer")
+    conn = build_conn() |> auth_user(user)
+
+    response = post conn, "/api", query: @query, variables: %{"menuItem" => menu_item}
+    assert json_response(response, 200) == %{
+      "data" => %{"createMenuItem" => nil},
+      "errors" => [%{
+        "locations" => [%{"column" => 0, "line" => 2}],
+        "message" => "unauthorized",
+        "path" => ["createMenuItem"],
+      }]
     }
   end
 end

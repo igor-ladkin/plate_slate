@@ -27,4 +27,28 @@ defmodule PlateSlateWeb.Schema.OrderingTypes do
     field :name, :string
     field :quantity, :integer
   end
+
+  object :customer do
+    field :name, :string
+    field :email, :string do
+      resolve fn %{id: customer_id} = customer, _, %{context: context} ->
+        case Map.get(context, :current_user) do
+          %{role: "employee"} ->
+            {:ok, Map.get(customer, :email)}
+          %{id: ^customer_id} ->
+            {:ok, Map.get(customer, :email)}
+          _ ->
+            {:error, "You are not authorized to view this email address"}
+        end
+      end
+    end
+    field :orders, list_of(:order) do
+      resolve &PlateSlateWeb.Resolvers.Ordering.orders/3
+    end
+  end
+
+  object :customer_session do
+    field :token, :string
+    field :customer, :customer
+  end
 end
